@@ -147,6 +147,25 @@ describe('transport - tcp', () => {
     }
   })
 
+  it('supports multiple addresses with port 0', (done) => {
+    const ma = '/ip4/127.0.0.1/tcp/0'
+    let swarm
+    peer.multiaddrs.add(ma)
+    peer.multiaddrs.add(ma)
+
+    swarm = new Swarm(peer, new PeerBook())
+
+    swarm.transport.add('tcp', new TCP())
+    swarm.transport.listen('tcp', {}, (conn) => pull(conn, conn), ready)
+
+    function ready () {
+      expect(peer.multiaddrs.size).to.equal(2)
+      // should not have /tcp/0 anymore
+      expect(peer.multiaddrs.has(ma)).to.equal(false)
+      swarm.close(done)
+    }
+  })
+
   it('support addr /ip4/0.0.0.0/tcp/9050', (done) => {
     const ma = '/ip4/0.0.0.0/tcp/9050'
     let swarm
