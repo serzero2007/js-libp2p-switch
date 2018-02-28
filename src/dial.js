@@ -77,7 +77,10 @@ function dial (swtch) {
         // 3. update the peerInfo that is already stored in the conn
       }
 
-      openConnInMuxedConn(muxer, (conn) => {
+      openConnInMuxedConn(muxer, (err, conn) => {
+        if (err) {
+          return callback(err)
+        }
         protocolHandshake(conn, protocol, callback)
       })
     }
@@ -89,18 +92,20 @@ function dial (swtch) {
 
       const tKeys = swtch.availableTransports(pi)
 
+      const circuitEnabled = !!swtch.transports[Circuit.tag]
       let circuitTried = false
       nextTransport(tKeys.shift())
 
       function nextTransport (key) {
         let transport = key
         if (!transport) {
-          if (circuitTried) {
-            return cb(new Error(`Circuit already tried!`))
+          if (!circuitEnabled) {
+            const msg = `Circuit not enabled and all transports failed to dial peer ${pi.id.toB58String()}!`
+            return cb(new Error(msg))
           }
 
-          if (!swtch.transports[Circuit.tag]) {
-            return cb(new Error(`Circuit not enabled!`))
+          if (circuitTried) {
+            return cb(new Error(`No available transports to dial peer ${pi.id.toB58String()}!`))
           }
 
           log(`Falling back to dialing over circuit`)
@@ -208,7 +213,13 @@ function dial (swtch) {
     }
 
     function openConnInMuxedConn (muxer, cb) {
-      cb(muxer.newStream())
+      muxer.newStream((err, conn) => {
+        if (err) {
+          return cb(err)
+        }
+
+        cb(null, conn)
+      })
     }
 
     function protocolHandshake (conn, protocol, cb) {
