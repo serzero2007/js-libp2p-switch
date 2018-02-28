@@ -92,7 +92,7 @@ function dial (swtch) {
 
       const tKeys = swtch.availableTransports(pi)
 
-      const circuitEnabled = !!swtch.transports[Circuit.tag]
+      const circuitEnabled = Boolean(swtch.transports[Circuit.tag])
       let circuitTried = false
       nextTransport(tKeys.shift())
 
