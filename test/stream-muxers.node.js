@@ -19,7 +19,7 @@ const tryEcho = utils.tryEcho
 
 const Switch = require('../src')
 
-describe.only('Stream Multiplexing', () => {
+describe('Stream Multiplexing', () => {
   [
     multiplex,
     spdy // TODO: do we still support this?
