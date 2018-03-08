@@ -213,13 +213,7 @@ function dial (swtch) {
     }
 
     function openConnInMuxedConn (muxer, cb) {
-      muxer.newStream((err, conn) => {
-        if (err) {
-          return cb(err)
-        }
-
-        cb(null, conn)
-      })
+      return muxer.newStream(cb)
     }
 
     function protocolHandshake (conn, protocol, cb) {

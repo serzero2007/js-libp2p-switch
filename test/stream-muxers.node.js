@@ -22,7 +22,7 @@ const Switch = require('../src')
 describe('Stream Multiplexing', () => {
   [
     multiplex,
-    spdy // TODO: do we still support this?
+    spdy
   ].forEach((sm) => describe(sm.multicodec, () => {
     let switchA
     let switchB
@@ -151,19 +151,17 @@ describe('Stream Multiplexing', () => {
       })
     })
 
-    it('should fail graciously on dead stream mux', function (done) {
-      if (sm.multicodec === '/spdy/3.1.0') {
-        this.skip()
-      }
-
+    it('error propagates correctly from multiplexer', function (done) {
       const id = switchA._peerInfo.id.toB58String()
       const muxer = switchB.muxedConns[id].muxer
-      muxer.multiplex.destroyed = true // simulate a destroyed stream
+      muxer.newStream = (cb) => {
+        cb(new Error())
+      }
 
       switchB.dial(switchA._peerInfo, '/papaia/1.0.0', (err, conn) => {
         expect(err).to.exist()
-        expect(err).to.match(/Error: Multiplexer is destroyed/)
-        muxer.multiplex.destroyed = false // re-enable stream to avoid hangs
+        expect(err).to.be.an.instanceof(Error)
+        expect(conn).to.not.exist()
         done()
       })
     })
