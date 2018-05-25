@@ -212,7 +212,7 @@ class Dialer {
     }
 
     // If the switch has a protector, be private
-    const protectedConnection = this.switch.protector.protect(this.ourPeerInfo.id, connection, this.peerInfo.id, (err) => {
+    const protectedConnection = this.switch.protector.protect(connection, (err) => {
       if (err) {
         return callback(err)
       }

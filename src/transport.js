@@ -97,8 +97,8 @@ class TransportManager {
     if (this.switch.protector) {
       muxerHandler = handler
       handler = (parentConnection) => {
-        const ourId = this.switch._peerInfo.id
-        const connection = this.switch.protector.protect(ourId, parentConnection, undefined, () => {
+        const connection = this.switch.protector.protect(parentConnection, () => {
+          // If we get an error here, we should stop talking to this peer
           muxerHandler(connection)
         })
       }
