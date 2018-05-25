@@ -52,6 +52,8 @@ class Switch extends EE {
     // Crypto details
     this.crypto = plaintext
 
+    this.protector = this._options.protector || null
+
     this.transport = new TransportManager(this)
     this.connection = new ConnectionManager(this)
 

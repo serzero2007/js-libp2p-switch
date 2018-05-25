@@ -86,9 +86,22 @@ class TransportManager {
    * @returns {void}
    */
   listen (key, options, handler, callback) {
+    let muxerHandler
+
     // if no handler is passed, we pass conns to protocolMuxer
     if (!handler) {
       handler = this.switch.protocolMuxer(key)
+    }
+
+        // If we have a protector make the connection private
+    if (this.switch.protector) {
+      muxerHandler = handler
+      handler = (parentConnection) => {
+        const ourId = this.switch._peerInfo.id
+        const connection = this.switch.protector.protect(ourId, parentConnection, undefined, () => {
+          muxerHandler(connection)
+        })
+      }
     }
 
     const transport = this.switch.transports[key]
