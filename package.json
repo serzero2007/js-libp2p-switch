@@ -62,6 +62,7 @@
     "ip-address": "^5.8.9",
     "libp2p-circuit": "~0.2.0",
     "libp2p-identify": "~0.7.1",
+    "libp2p-pnet": "github:libp2p/js-libp2p-pnet#feat/initial",
     "lodash.includes": "^4.3.0",
     "moving-average": "^1.0.0",
     "multiaddr": "^5.0.0",

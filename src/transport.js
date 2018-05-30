@@ -93,7 +93,7 @@ class TransportManager {
       handler = this.switch.protocolMuxer(key)
     }
 
-        // If we have a protector make the connection private
+    // If we have a protector make the connection private
     if (this.switch.protector) {
       muxerHandler = handler
       handler = (parentConnection) => {
