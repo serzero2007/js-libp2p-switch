@@ -12,6 +12,7 @@ const plaintext = require('./plaintext')
 const Observer = require('./observer')
 const Stats = require('./stats')
 const assert = require('assert')
+const Errors = require('./errors')
 
 class Switch extends EE {
   constructor (peerInfo, peerBook, options) {
@@ -53,6 +54,11 @@ class Switch extends EE {
     this.crypto = plaintext
 
     this.protector = this._options.protector || null
+
+    // If a private netork is enforced and we have no protector, error
+    if (process.env.LIBP2P_FORCE_PNET && !this.protector) {
+      throw new Error(Errors.PROTECTOR_REQUIRED)
+    }
 
     this.transport = new TransportManager(this)
     this.connection = new ConnectionManager(this)
@@ -199,3 +205,4 @@ class Switch extends EE {
 }
 
 module.exports = Switch
+module.exports.errors = Errors

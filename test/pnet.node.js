@@ -10,12 +10,18 @@ const TCP = require('libp2p-tcp')
 const multiplex = require('libp2p-mplex')
 const pull = require('pull-stream')
 const PeerBook = require('peer-book')
+const Protector = require('libp2p-pnet')
 
 const utils = require('./utils')
 const createInfos = utils.createInfos
 const tryEcho = utils.tryEcho
 const Switch = require('../src')
-const Protector = require('libp2p-pnet')
+const Errors = Switch.errors
+
+const generatePSK = Protector.generate
+
+const psk = Buffer.alloc(95)
+generatePSK(psk)
 
 describe('Private Network', () => {
   let switchA
@@ -34,13 +40,13 @@ describe('Private Network', () => {
     peerC.multiaddrs.add('/ip4/127.0.0.1/tcp/9003')
 
     switchA = new Switch(peerA, new PeerBook(), {
-      protector: new Protector('dffb7e3135399a8b1612b2aaca1c36a3a8ac2cd0cca51ceeb2ced87d308cac6d')
+      protector: new Protector(psk)
     })
     switchB = new Switch(peerB, new PeerBook(), {
-      protector: new Protector('dffb7e3135399a8b1612b2aaca1c36a3a8ac2cd0cca51ceeb2ced87d308cac6d')
+      protector: new Protector(psk)
     })
     switchC = new Switch(peerC, new PeerBook(), {
-      protector: new Protector('dffb7e3135399a8b1612b2aaca1c36a3a8ac2cd0cca51ceeb2ced87d308cac6d')
+      protector: new Protector(psk)
     })
 
     switchA.transport.add('tcp', new TCP())
@@ -69,6 +75,14 @@ describe('Private Network', () => {
       (cb) => switchB.stop(cb),
       (cb) => switchC.stop(cb)
     ], done)
+  })
+
+  it('should error when a protector is not provided and private network is enforced', () => {
+    process.env.LIBP2P_FORCE_PNET = 1
+    expect(() => {
+      new Switch({}, new PeerBook())
+    }).to.throw(Errors.PROTECTOR_REQUIRED)
+    delete process.env.LIBP2P_FORCE_PNET
   })
 
   it('handle + dial on protocol', (done) => {
