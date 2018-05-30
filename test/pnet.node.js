@@ -80,7 +80,7 @@ describe('Private Network', () => {
   it('should error when a protector is not provided and private network is enforced', () => {
     process.env.LIBP2P_FORCE_PNET = 1
     expect(() => {
-      new Switch({}, new PeerBook())
+      return new Switch({}, new PeerBook())
     }).to.throw(Errors.PROTECTOR_REQUIRED)
     delete process.env.LIBP2P_FORCE_PNET
   })
