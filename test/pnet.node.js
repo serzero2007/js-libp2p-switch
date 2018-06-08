@@ -10,6 +10,7 @@ const TCP = require('libp2p-tcp')
 const multiplex = require('libp2p-mplex')
 const pull = require('pull-stream')
 const PeerBook = require('peer-book')
+const secio = require('libp2p-secio')
 const Protector = require('libp2p-pnet')
 
 const utils = require('./utils')
@@ -45,17 +46,17 @@ describe('Private Network', () => {
     switchB = new Switch(peerB, new PeerBook(), {
       protector: new Protector(psk)
     })
-    switchC = new Switch(peerC, new PeerBook(), {
-      protector: new Protector(psk)
-    })
+    // alternative way to add the protector
+    switchC = new Switch(peerC, new PeerBook())
+    switchC.protector = new Protector(psk)
 
     switchA.transport.add('tcp', new TCP())
     switchB.transport.add('tcp', new TCP())
     switchC.transport.add('tcp', new TCP())
 
-    // switchA.connection.crypto(secio.tag, secio.encrypt)
-    // switchB.connection.crypto(secio.tag, secio.encrypt)
-    // switchC.connection.crypto(secio.tag, secio.encrypt)
+    switchA.connection.crypto(secio.tag, secio.encrypt)
+    switchB.connection.crypto(secio.tag, secio.encrypt)
+    switchC.connection.crypto(secio.tag, secio.encrypt)
 
     switchA.connection.addStreamMuxer(multiplex)
     switchB.connection.addStreamMuxer(multiplex)
